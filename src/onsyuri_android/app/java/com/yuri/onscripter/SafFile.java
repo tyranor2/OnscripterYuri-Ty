@@ -404,6 +404,7 @@ public class SafFile {
         if (docfile == null) return -1;
         try {
             pfd = context.getContentResolver().openFileDescriptor(docfile.getUri(), mode);
+            Log.d("getFdSaf", "getFdSaf: " + pfd);
         } catch (final Exception e) {
             return -1;
         }

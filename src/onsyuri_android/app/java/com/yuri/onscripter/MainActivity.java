@@ -40,6 +40,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.yuri.onscripter.R;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -64,9 +66,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String SHAREDPREF_GAMEURI = "gameuri";
     public static final String SHAREDPREF_GAMECONFIG = "gameargs";
 
-    private
-
-    enum DIR_TYPE{
+    private enum DIR_TYPE{
         NOT_DIR,
         NORMAL_DIR,
         SAF_DIR
