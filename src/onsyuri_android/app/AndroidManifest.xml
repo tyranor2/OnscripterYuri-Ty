@@ -4,33 +4,77 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" tools:ignore="ProtectedPermissions" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/app_name_ty"
         android:supportsRtl="true"
         android:theme="@style/Theme.OnscripterYuri"
         android:forceDarkAllowed="false"
-        tools:targetApi="31" >
+        android:pageSizeCompat="enabled"
+        android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
+        android:extractNativeLibs="true"
+        tools:targetApi="36" >
         <activity
-            android:name=".MainActivity"
+            android:name="com.yuri.onscripter.TyActivity"
+            android:theme="@style/Theme.OnscripterYuri.NoActionBar"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <data android:scheme="package" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
         </activity>
         <activity
-            android:name=".ONScripter"
+            android:name="com.yuri.onscripter.MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:taskAffinity="${applicationId}.OnsYuriLauncher"
+            android:process=":OnsYuriLauncher"
+            android:exported="true" >
+
+        </activity>
+        <activity
+            android:name="com.yuri.onscripter.ONScripter"
             android:exported="true"
             android:screenOrientation="sensorLandscape"
+            android:launchMode="singleInstance"
+            android:taskAffinity="${applicationId}.OnsYuri"
+            android:process=":OnsYuri"
             android:configChanges="screenSize|orientation|keyboardHidden">
         </activity>
+
+        <activity
+            android:name="com.yuri.onscripter.VideoPlayerActivity"
+            android:exported="true"
+            android:theme="@style/Theme.OnscripterYuri"
+            android:screenOrientation="sensorLandscape"
+            android:launchMode="singleTop"
+            android:taskAffinity="${applicationId}.OnsYuri"
+            android:configChanges="screenSize|orientation|keyboardHidden">
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileProvider"
+            android:authorities="${applicationId}.file_provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

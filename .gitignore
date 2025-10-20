@@ -29,3 +29,7 @@ src/onsyuri_android/app/cpp/thirdparty/**
 src/onsyuri_android/app/.cxx/**
 src/onsyuri_android/app/debug/**
 src/onsyuri_android/app/release/**
+src/onsyuri_android/stuffs/**
+src/onsyuri_android/.idea/**
+src/onsyuri_android/.kotlin/**
+src/.idea/**

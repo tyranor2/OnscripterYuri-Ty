@@ -6,6 +6,7 @@
     android:animateLayoutChanges="true"
     android:animationCache="true"
     android:background="@color/background"
+    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
     <LinearLayout
@@ -16,8 +17,10 @@
         <EditText
             android:id="@+id/text_gamedir"
             android:layout_width="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.8"
+            android:layout_weight="1"
             android:hint="edit or explore the game dir"
             android:inputType="text"
             android:selectAllOnFocus="false"

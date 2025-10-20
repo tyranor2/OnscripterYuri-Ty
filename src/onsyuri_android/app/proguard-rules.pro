@@ -12,13 +12,9 @@
 #   public *;
 #}
 
--keep class com.yuri.onscripter.ONScripter {
-    public *;
-}
-
--keep class org.libsdl.app.** {
-    public *;
-}
+# OnsYuri
+-keep class org.libsdl.app.** {*;}
+-keep class com.yuri.onscripter.** {*;}
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
