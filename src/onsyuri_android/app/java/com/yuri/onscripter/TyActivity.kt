@@ -85,6 +85,7 @@ class TyActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (Environment.isExternalStorageManager()) {
                     Toast("已获取文件访问权限")
+                    onLaunch()
                 } else {
                     Toast("权限未授予")
                     MaterialAlertDialogBuilder(this)
@@ -254,7 +255,9 @@ class TyActivity : AppCompatActivity() {
                     finish()
                 }.setNegativeButton("反馈") { _,_ ->
                     GITHUB_URL.openUrl(this)
-                }.show()
+                }
+                .setCancelable(false)
+                .show()
         }
     }
 
