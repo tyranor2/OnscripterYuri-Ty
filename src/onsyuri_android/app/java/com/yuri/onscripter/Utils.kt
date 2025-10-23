@@ -23,6 +23,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 private const val TAG = "Utils"
@@ -30,8 +34,10 @@ private const val TAG = "Utils"
 const val CODE_RW_PERMISSION = 0
 const val CODE_OPEN_DIR = 1
 
-fun Context.Toast(text: String, isLong: Boolean = false) {
-    Toast.makeText(this.applicationContext, text, if (isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()
+fun Context.Toast(text: String, isLong: Boolean = false, scope: CoroutineScope = GlobalScope) {
+    scope.launch(Dispatchers.Main) {
+        Toast.makeText(this@Toast.applicationContext, text, if (isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()
+    }
 }
 
 fun hasRWPermission(context: Context): Boolean {
@@ -52,11 +58,15 @@ fun requestAllFilesPermission(context: Context, launcher: ActivityResultLauncher
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         if (!Environment.isExternalStorageManager()) {
             try {
-                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
                 intent.data = ("package:" + context.packageName).toUri()
                 launcher.launch(intent)
             } catch (e: Exception) {
-                val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
                 launcher.launch(intent)
             }
         } else {

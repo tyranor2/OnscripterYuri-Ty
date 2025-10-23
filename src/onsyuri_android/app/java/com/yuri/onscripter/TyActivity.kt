@@ -62,11 +62,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yuri.onscripter.MainActivity.SHAREDPREF_GAMECONFIG
 import com.yuri.onscripter.MainActivity.SHAREDPREF_GAMEURI
 import com.yuri.onscripter.TyActivity.Companion.GITHUB_URL
 import com.yuri.onscripter.TyActivity.Companion.TYRANOR_URL
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.ArrayList
 
 class TyActivity : AppCompatActivity() {
@@ -115,6 +119,7 @@ class TyActivity : AppCompatActivity() {
         if (requestCode == CODE_RW_PERMISSION) {
             if (hasRWPermission(this)) {
                 Toast("已获得文件访问权限")
+                onLaunch()
             }
             else {
                 Toast("储存权限未授予")
@@ -215,49 +220,56 @@ class TyActivity : AppCompatActivity() {
      * 处理启动参数
      */
     private fun onLaunch() {
-        runCatching {
-            args = intent.getStringArrayListExtra(SHAREDPREF_GAMECONFIG)
-            ignoreCutout = intent.getBooleanExtra("ignorecutout", true)
-            realUri = intent.getStringExtra(SHAREDPREF_GAMEURI)?.toUri()
-            tyUri = realUri // intent.data
-            val useUri = tyUri != null
-            if (args.isNullOrEmpty()) {
-                Toast("请从Tyranor打开游戏")
-                showMainPage.value = true
-            } else {
-                if (useUri) { // use Uri
-                    if (!tyUri!!.isPersisted(this)) {
-                        Log.d(TAG, "onLaunch: 未授权 $tyUri")
-                        requestTyranorPermission()
-                    } else { // Uri 已授权
-                        Log.d(TAG, "onLaunch: 已授权")
-                        val gameUri = tyUri?.treeDocumentFile(this)?.findFile("currentGame")?.uri
-                        tyUri = gameUri!!
-                        launchGame()
-                        showMainPage.value = true
-                    }
-                } else { // use File
-                    requestPermission(
-                        onGrant = {
-                            launchGame(isUri = false)
+        lifecycleScope.launch(Dispatchers.IO) {
+            runCatching {
+                args = intent.getStringArrayListExtra(SHAREDPREF_GAMECONFIG)
+                ignoreCutout = intent.getBooleanExtra("ignorecutout", true)
+                realUri = intent.getStringExtra(SHAREDPREF_GAMEURI)?.toUri()
+                tyUri = realUri // intent.data
+                val useUri = tyUri != null
+                if (args.isNullOrEmpty()) {
+                    Toast("请从Tyranor打开游戏")
+                    showMainPage.value = true
+                } else {
+                    if (useUri) { // use Uri
+                        if (!tyUri!!.isPersisted(this@TyActivity)) {
+                            Log.d(TAG, "onLaunch: 未授权 $tyUri")
+                            withContext(Dispatchers.Main) {
+                                requestTyranorPermission()
+                            }
+                        } else { // Uri 已授权
+                            Log.d(TAG, "onLaunch: 已授权")
+                            val gameUri = tyUri?.treeDocumentFile(this@TyActivity)?.findFile("currentGame")?.uri
+                            tyUri = gameUri!!
+                            launchGame()
                             showMainPage.value = true
                         }
-                    )
+                    } else { // use File
+                        requestPermission(
+                            onGrant = {
+                                launchGame(isUri = false)
+                                showMainPage.value = true
+                            }
+                        )
+                    }
+                    Log.d(TAG, "onLaunch: ${args}")
                 }
-                Log.d(TAG, "onLaunch: ${args}")
+            }.onFailure {
+                showMainPage.value = true
+                it.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    MaterialAlertDialogBuilder(this@TyActivity)
+                        .setTitle("错误")
+                        .setMessage("启动时遇到错误，你可以前往github反馈问题\n$it")
+                        .setPositiveButton("关闭") { _,_ ->
+                            finish()
+                        }.setNegativeButton("反馈") { _,_ ->
+                            GITHUB_URL.openUrl(this@TyActivity)
+                        }
+                        .setCancelable(false)
+                        .show()
+                }
             }
-        }.onFailure {
-            showMainPage.value = true
-            MaterialAlertDialogBuilder(this)
-                .setTitle("错误")
-                .setMessage("启动时遇到错误，你可以前往github反馈问题\n$it")
-                .setPositiveButton("关闭") { _,_ ->
-                    finish()
-                }.setNegativeButton("反馈") { _,_ ->
-                    GITHUB_URL.openUrl(this)
-                }
-                .setCancelable(false)
-                .show()
         }
     }
 
